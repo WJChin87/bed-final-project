@@ -4,6 +4,7 @@ import createUser from "../services/users/createUser.js";
 import getUserByUsername from "../services/users/getUserByUsername.js";
 import getUserById from "../services/users/getUserById.js";
 import deleteUserById from "../services/users/deleteUserById.js";
+import updateUserById from "../services/users/updateUserById.js";
 
 const router = Router();
 
@@ -92,6 +93,23 @@ router.delete("/:id", async (req, res, next) => {
     }
   } catch (error) {
     next(error);
+  }
+});
+
+router.put("/:id", async (req, res) => {
+  const { id } = req.params;
+  const updatedUserData = req.body;
+  const updatedUserById = await updateUserById(id, updatedUserData);
+
+  if (updatedUserById) {
+    res.status(200).json({
+      message: `User with id ${id} successfully updated`,
+      updatedUserById,
+    });
+  } else {
+    return res.status(404).json({
+      message: `User with id ${id} not found`,
+    });
   }
 });
 
