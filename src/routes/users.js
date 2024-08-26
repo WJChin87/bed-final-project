@@ -3,6 +3,7 @@ import getUsers from "../services/users/getUsers.js";
 import createUser from "../services/users/createUser.js";
 import getUserByUsername from "../services/users/getUserByUsername.js";
 import getUserById from "../services/users/getUserById.js";
+import deleteUserById from "../services/users/deleteUserById.js";
 
 const router = Router();
 
@@ -74,6 +75,20 @@ router.get("/:id", async (req, res, next) => {
       res.status(404).json({ message: `User with id ${id} not found` });
     } else {
       res.status(200).json(user);
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete("/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const deletedUser = await deleteUserById(id);
+    if (!deletedUser) {
+      res.status(404).json({ message: `User with id ${id} not found` });
+    } else {
+      res.status(200).json({ message: `User with id ${id} deleted` });
     }
   } catch (error) {
     next(error);
