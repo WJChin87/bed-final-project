@@ -10,18 +10,21 @@ const createUser = async (
   phoneNumber,
   profilePicture
 ) => {
-  const newUser = await prisma.user.create({
-    data: {
-      username,
-      password,
-      name,
-      email,
-      phoneNumber,
-      profilePicture,
-    },
-  });
-
-  return newUser;
+  try {
+    const newUser = await prisma.user.create({
+      data: {
+        username,
+        password,
+        name,
+        email,
+        phoneNumber,
+        profilePicture,
+      },
+    });
+    return newUser;
+  } catch (error) {
+    throw new Error(`Failed to create user: ${error.message}`);
+  }
 };
 
 export default createUser;
