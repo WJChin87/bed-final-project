@@ -2,6 +2,7 @@ import { Router } from "express";
 import getUsers from "../services/users/getUsers.js";
 import createUser from "../services/users/createUser.js";
 import getUserByUsername from "../services/users/getUserByUsername.js";
+import getUserById from "../services/users/getUserById.js";
 
 const router = Router();
 
@@ -60,6 +61,22 @@ router.post("/", async (req, res, next) => {
     res.status(400).json({
       message: error.message,
     });
+  }
+});
+
+router.get("/:id", async (req, res, next) => {
+  console.log("req.params:", req.params);
+  try {
+    const { id } = req.params;
+    const user = await getUserById(id);
+
+    if (!user) {
+      res.status(404).json({ message: `User with id ${id} not found` });
+    } else {
+      res.status(200).json(user);
+    }
+  } catch (error) {
+    next(error);
   }
 });
 
