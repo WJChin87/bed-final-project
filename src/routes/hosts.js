@@ -2,6 +2,7 @@ import { Router } from "express";
 import getHosts from "../services/hosts/getHosts.js";
 import createHost from "../services/hosts/createHost.js";
 import getHostByUsername from "../services/hosts/getHostByUsername.js";
+import getHostById from "../services/hosts/getHostById.js";
 
 const router = Router();
 
@@ -69,6 +70,22 @@ router.post("/", async (req, res, next) => {
     res.status(400).json({
       message: error.message,
     });
+  }
+});
+
+router.get("/:id", async (req, res, next) => {
+  console.log("req.params:", req.params);
+  try {
+    const { id } = req.params;
+    const host = await getHostById(id);
+
+    if (!host) {
+      res.status(404).json({ message: `Host with id ${id} not found` });
+    } else {
+      res.status(200).json(host);
+    }
+  } catch (error) {
+    next(error);
   }
 });
 
