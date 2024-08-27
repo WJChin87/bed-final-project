@@ -4,6 +4,7 @@ import createHost from "../services/hosts/createHost.js";
 import getHostByUsername from "../services/hosts/getHostByUsername.js";
 import getHostById from "../services/hosts/getHostById.js";
 import deleteHostById from "../services/hosts/deleteHostById.js";
+import updateHostById from "../services/hosts/updateHostById.js";
 
 const router = Router();
 
@@ -101,6 +102,23 @@ router.delete("/:id", async (req, res, next) => {
     }
   } catch (error) {
     next(error);
+  }
+});
+
+router.put("/:id", async (req, res) => {
+  const { id } = req.params;
+  const updatedHostData = req.body;
+  const updatedHostById = await updateHostById(id, updatedHostData);
+
+  if (updatedHostById) {
+    res.status(200).json({
+      message: `Host with id ${id} successfully updated`,
+      updatedHostById,
+    });
+  } else {
+    return res.status(404).json({
+      message: `Host with id ${id} not found`,
+    });
   }
 });
 
