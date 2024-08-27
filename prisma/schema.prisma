@@ -53,7 +53,7 @@ model Property {
   bedroomCount  Int
   bathRoomCount Int
   maxGuestCount Int
-  rating        Int
+  rating        Int?  //rating property is optional
   reviews       Review[]
   bookings      Booking[]
   amenities     Amenity[]
