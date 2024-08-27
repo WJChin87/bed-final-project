@@ -1,6 +1,9 @@
 import { Router } from "express";
 import getProperties from "../services/properties/getProperties.js";
 import createProperty from "../services/properties/createProperty.js";
+import getPropertyById from "../services/properties/getPropertyById.js";
+import deletePropertyById from "../services/properties/deletePropertyById.js";
+import updatePropertyById from "../services/properties/updatePropertyById.js";
 
 const router = Router();
 
@@ -70,6 +73,53 @@ router.post("/", async (req, res, next) => {
   } catch (error) {
     res.status(400).json({
       message: error.message,
+    });
+  }
+});
+
+router.get("/:id", async (req, res, next) => {
+  console.log("req.params:", req.params);
+  try {
+    const { id } = req.params;
+    const property = await getPropertyById(id);
+
+    if (!property) {
+      res.status(404).json({ message: `Property with id ${id} not found` });
+    } else {
+      res.status(200).json(property);
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete("/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const deletedProperty = await deletePropertyById(id);
+    if (!deletedProperty) {
+      res.status(404).json({ message: `Property with id ${id} not found` });
+    } else {
+      res.status(200).json({ message: `Property with id ${id} deleted` });
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.put("/:id", async (req, res) => {
+  const { id } = req.params;
+  const updatedPropertyData = req.body;
+  const updatedPropertyById = await updatePropertyById(id, updatedPropertyData);
+
+  if (updatedPropertyById) {
+    res.status(200).json({
+      message: `Property with id ${id} successfully updated`,
+      updatedPropertyById,
+    });
+  } else {
+    return res.status(404).json({
+      message: `Property with id ${id} not found`,
     });
   }
 });
