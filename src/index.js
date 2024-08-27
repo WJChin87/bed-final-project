@@ -4,6 +4,7 @@ import userRouter from "./routes/users.js";
 import hostRouter from "./routes/hosts.js";
 import propertiesRouter from "./routes/properties.js";
 import amenitiesRouter from "./routes/amenities.js";
+import bookingsRouter from "./routes/bookings.js";
 import "dotenv/config";
 
 const app = express();
@@ -13,6 +14,7 @@ app.use("/users", userRouter);
 app.use("/hosts", hostRouter);
 app.use("/properties", propertiesRouter);
 app.use("/amenities", amenitiesRouter);
+app.use("/bookings", bookingsRouter);
 
 app.use("/login", loginRouter);
 
