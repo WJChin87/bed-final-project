@@ -8,8 +8,12 @@ import bookingsRouter from "./routes/bookings.js";
 import reviewsRouter from "./routes/reviews.js";
 import "dotenv/config";
 
+import log from "./middleware/logMiddleware.js";
+
 const app = express();
 app.use(express.json());
+
+app.use(log);
 
 app.use("/users", userRouter);
 app.use("/hosts", hostRouter);
