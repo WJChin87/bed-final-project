@@ -1,13 +1,17 @@
 import { PrismaClient } from "@prisma/client";
 
-const getHosts = async (username, email) => {
+const getHosts = async (filters = {}) => {
   const prisma = new PrismaClient();
 
-  return await prisma.host.findMany({
-    where: {
-      username,
-      email,
-    },
+  const where = {};
+
+  if (filters.username) where.username = filters.username;
+  if (filters.name) where.name = filters.name;
+  if (filters.email) where.email = filters.email;
+  if (filters.phoneNumber) where.phoneNumber = filters.phoneNumber;
+
+  return await prisma.user.findMany({
+    where,
   });
 };
 
