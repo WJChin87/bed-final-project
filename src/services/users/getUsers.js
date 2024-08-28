@@ -10,7 +10,6 @@ const getUsers = async (filters = {}) => {
   if (filters.name) where.name = filters.name;
   if (filters.email) where.email = filters.email;
   if (filters.phoneNumber) where.phoneNumber = filters.phoneNumber;
-  if (filters.name) where.name = filters.name;
 
   return await prisma.user.findMany({
     where,
