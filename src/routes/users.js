@@ -5,19 +5,28 @@ import getUserByUsername from "../services/users/getUserByUsername.js";
 import getUserById from "../services/users/getUserById.js";
 import deleteUserById from "../services/users/deleteUserById.js";
 import updateUserById from "../services/users/updateUserById.js";
+import auth from "../middleware/auth.js";
 
 const router = Router();
 
+// src/routes/users.js
 router.get("/", async (req, res, next) => {
   try {
-    const users = await getUsers();
+    const filters = {
+      username: req.query.username,
+      name: req.query.name,
+      email: req.query.email,
+      phoneNumber: req.query.phoneNumber,
+    };
+
+    const users = await getUsers(filters);
     res.json(users);
   } catch (error) {
     next(error);
   }
 });
 
-router.post("/", async (req, res, next) => {
+router.post("/", auth, async (req, res, next) => {
   try {
     const requiredFields = [
       "username",
@@ -82,7 +91,7 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id", auth, async (req, res, next) => {
   try {
     const { id } = req.params;
     const deletedUser = await deleteUserById(id);
@@ -96,7 +105,7 @@ router.delete("/:id", async (req, res, next) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
   const { id } = req.params;
   const updatedUserData = req.body;
   const updatedUserById = await updateUserById(id, updatedUserData);

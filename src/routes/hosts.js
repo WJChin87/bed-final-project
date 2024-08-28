@@ -5,19 +5,27 @@ import getHostByUsername from "../services/hosts/getHostByUsername.js";
 import getHostById from "../services/hosts/getHostById.js";
 import deleteHostById from "../services/hosts/deleteHostById.js";
 import updateHostById from "../services/hosts/updateHostById.js";
+import auth from "../middleware/auth.js";
 
 const router = Router();
 
 router.get("/", async (req, res, next) => {
   try {
-    const hosts = await getHosts();
-    res.json(hosts);
+    const filters = {
+      username: req.query.username,
+      name: req.query.name,
+      email: req.query.email,
+      phoneNumber: req.query.phoneNumber,
+    };
+
+    const users = await getHosts(filters);
+    res.json(users);
   } catch (error) {
     next(error);
   }
 });
 
-router.post("/", async (req, res, next) => {
+router.post("/", auth, async (req, res, next) => {
   try {
     const requiredFields = [
       "username",
@@ -91,7 +99,7 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id", auth, async (req, res, next) => {
   try {
     const { id } = req.params;
     const deletedHost = await deleteHostById(id);
@@ -105,7 +113,7 @@ router.delete("/:id", async (req, res, next) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
   const { id } = req.params;
   const updatedHostData = req.body;
   const updatedHostById = await updateHostById(id, updatedHostData);

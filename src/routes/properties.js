@@ -4,23 +4,32 @@ import createProperty from "../services/properties/createProperty.js";
 import getPropertyById from "../services/properties/getPropertyById.js";
 import deletePropertyById from "../services/properties/deletePropertyById.js";
 import updatePropertyById from "../services/properties/updatePropertyById.js";
+import auth from "../middleware/auth.js";
 
 const router = Router();
 
 router.get("/", async (req, res, next) => {
   try {
-    const { location, pricePerNight } = req.query;
-    const pricePerNightFloat = parseFloat(pricePerNight);
-    const properties = await getProperties(location, pricePerNightFloat);
+    const filters = {
+      hostId: req.query.hostId,
+      name: req.query.name,
+      description: req.query.description,
+      location: req.query.location,
+      pricePerNight: req.query.pricePerNight,
+      bedroomCount: req.query.bedroomCount,
+      bathRoomCount: req.query.bathRoomCount,
+      maxGuestCount: req.query.maxGuestCount,
+      rating: req.query.rating,
+    };
 
-    res.status(200).json(properties);
+    const users = await getProperties(filters);
+    res.json(users);
   } catch (error) {
-    console.error("Error in /properties endpoint:", error);
     next(error);
   }
 });
 
-router.post("/", async (req, res, next) => {
+router.post("/", auth, async (req, res, next) => {
   try {
     const requiredFields = [
       "location",
@@ -93,7 +102,7 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id", auth, async (req, res, next) => {
   try {
     const { id } = req.params;
     const deletedProperty = await deletePropertyById(id);
@@ -107,7 +116,7 @@ router.delete("/:id", async (req, res, next) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
   const { id } = req.params;
   const updatedPropertyData = req.body;
   const updatedPropertyById = await updatePropertyById(id, updatedPropertyData);

@@ -4,6 +4,7 @@ import createReview from "../services/reviews/createReview.js";
 import getReviewById from "../services/reviews/getReviewById.js";
 import deleteReviewById from "../services/reviews/deleteReviewById.js";
 import updateReviewById from "../services/reviews/updateReviewById.js";
+import auth from "../middleware/auth.js";
 
 const router = Router();
 
@@ -16,7 +17,7 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-router.post("/", async (req, res, next) => {
+router.post("/", auth, async (req, res, next) => {
   try {
     const requiredFields = ["userId", "propertyId", "rating", "comment"];
     const missingFields = requiredFields.filter((field) => !req.body[field]);
@@ -62,7 +63,7 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id", auth, async (req, res, next) => {
   try {
     const { id } = req.params;
     const deletedReview = await deleteReviewById(id);
@@ -76,7 +77,7 @@ router.delete("/:id", async (req, res, next) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
   const { id } = req.params;
   const updatedReviewData = req.body;
   const updatedReviewById = await updateReviewById(id, updatedReviewData);

@@ -4,6 +4,7 @@ import createAmenity from "../services/amenities/createAmenity.js";
 import getAmenityById from "../services/amenities/getAmenityById.js";
 import deleteAmenityById from "../services/amenities/deleteAmenityById.js";
 import updateAmenityById from "../services/amenities/updateAmenityById.js";
+import auth from "../middleware/auth.js";
 
 const router = Router();
 
@@ -16,7 +17,7 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-router.post("/", async (req, res, next) => {
+router.post("/", auth, async (req, res, next) => {
   try {
     const requiredFields = ["name"];
     const missingFields = requiredFields.filter((field) => !req.body[field]);
@@ -62,7 +63,7 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id", auth, async (req, res, next) => {
   try {
     const { id } = req.params;
     const deletedAmenity = await deleteAmenityById(id);
@@ -76,7 +77,7 @@ router.delete("/:id", async (req, res, next) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
   const { id } = req.params;
   const updatedAmenityData = req.body;
   const updatedAmenityById = await updateAmenityById(id, updatedAmenityData);
