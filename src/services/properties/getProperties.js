@@ -1,46 +1,24 @@
 import { PrismaClient } from "@prisma/client";
 
-const getProperties = async (location, pricePerNight) => {
-  let prisma;
+const getProperties = async (filters = {}) => {
+  const prisma = new PrismaClient();
 
-  try {
-    prisma = new PrismaClient();
+  const where = {};
 
-    const prismaFilters = {
-      AND: [
-        {
-          location: {
-            contains: location,
-          },
-        },
-        {
-          pricePerNight: {
-            equals: isNaN(pricePerNight) ? undefined : pricePerNight,
-          },
-        },
-      ],
-    };
+  if (filters.hostId) where.hostId = filters.hostId;
+  if (filters.name) where.name = filters.name;
+  if (filters.description) where.description = filters.description;
+  if (filters.location) where.location = { contains: filters.location };
+  if (filters.pricePerNight)
+    where.pricePerNight = parseFloat(filters.pricePerNight);
+  if (filters.bedroomCount) where.bedroomCount = filters.bedroomCount;
+  if (filters.bathRoomCount) where.bathRoomCount = filters.bathRoomCount;
+  if (filters.maxGuests) where.maxGuests = filters.maxGuests;
+  if (filters.rating) where.rating = filters.rating;
 
-    // console.log("Executing query with filters:", prismaFilters);
-
-    const properties = await prisma.property.findMany({
-      where: prismaFilters,
-    });
-
-    // console.log("Received filter criteria:", prismaFilters);
-    // console.log("Query result:", properties);
-
-    if (properties.length === 0) {
-      return { message: "No properties found matching the filter criteria" };
-    }
-
-    return properties;
-  } catch (error) {
-    // console.error("Error in getProperties service:", error.message);
-    throw new Error(`Error in getProperties service: ${error.message}`);
-  } finally {
-    await prisma?.$disconnect();
-  }
+  return await prisma.property.findMany({
+    where,
+  });
 };
 
 export default getProperties;
