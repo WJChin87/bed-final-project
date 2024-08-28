@@ -1,13 +1,19 @@
 import { PrismaClient } from "@prisma/client";
 
-const getUsers = async (username, email) => {
+// src/services/users/getUsers.js
+const getUsers = async (filters = {}) => {
   const prisma = new PrismaClient();
 
+  const where = {};
+
+  if (filters.username) where.username = filters.username;
+  if (filters.name) where.name = filters.name;
+  if (filters.email) where.email = filters.email;
+  if (filters.phoneNumber) where.phoneNumber = filters.phoneNumber;
+  if (filters.name) where.name = filters.name;
+
   return await prisma.user.findMany({
-    where: {
-      username,
-      email,
-    },
+    where,
   });
 };
 
