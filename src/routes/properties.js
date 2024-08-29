@@ -22,8 +22,8 @@ router.get("/", async (req, res, next) => {
       rating: req.query.rating,
     };
 
-    const users = await getProperties(filters);
-    res.json(users);
+    const properties = await getProperties(filters);
+    res.json(properties);
   } catch (error) {
     next(error);
   }
