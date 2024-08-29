@@ -8,15 +8,17 @@
     "seed": "node ./prisma/seed.js"
   },
   "scripts": {
-    "dev": "nodemon src/index.js",
+    "dev": "nodemon src/index.js && npm run sentry:sourcemaps",
     "test-positive": "newman run \"./postman/collections/Bookings API.json\" -e \"./postman/environments/Local.postman_environment.json\"",
     "test-negative": "newman run \"./postman/collections/Bookings API Negative.json\" -e \"./postman/environments/Local.postman_environment.json\"",
-    "test": "npm run test-positive && npm run test-negative"
+    "test": "npm run test-positive && npm run test-negative",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org wing-joe --project bed-final-project-api ../../../../.. && sentry-cli sourcemaps upload --org wing-joe --project bed-final-project-api ../../../../.."
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^5.18.0",
+    "@sentry/cli": "^2.34.1",
     "@sentry/node": "^7.119.0",
     "@sentry/profiling-node": "^8.27.0",
     "dotenv": "^16.4.5",
