@@ -42,7 +42,9 @@ router.post(
     const missingFields = requiredFields.filter((field) => !req.body[field]);
 
     if (missingFields.length > 0) {
-      throw new Error(`Missing required fields: ${missingFields.join(", ")}`);
+      return res.status(400).json({
+        message: `Missing required fields: ${missingFields.join(", ")}`,
+      });
     }
 
     const { username, password, name, email, phoneNumber, profilePicture } =
@@ -109,7 +111,7 @@ router.put(
     const updatedUserById = await updateUserById(id, updatedUserData);
 
     res.status(200).json({
-      message: `User with id ${id} successfully updated`,
+      message: `User with id ${updatedUserById} successfully updated`,
       user: updatedUserById,
     });
   },

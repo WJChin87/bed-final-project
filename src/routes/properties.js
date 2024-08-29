@@ -47,7 +47,9 @@ router.post(
     const missingFields = requiredFields.filter((field) => !req.body[field]);
 
     if (missingFields.length > 0) {
-      throw new Error(`Missing required fields: ${missingFields.join(", ")}`);
+      return res.status(400).json({
+        message: `Missing required fields: ${missingFields.join(", ")}`,
+      });
     }
 
     const {
