@@ -6,14 +6,14 @@ import propertiesRouter from "./routes/properties.js";
 import amenitiesRouter from "./routes/amenities.js";
 import bookingsRouter from "./routes/bookings.js";
 import reviewsRouter from "./routes/reviews.js";
-import log from "./middleware/logMiddleware.js";
-import errorHandler from "./middleware/errorHandler.js";
-import "dotenv/config";
 
+import "dotenv/config";
+import errorHandler from "./middleware/errorHandler.js";
 import * as Sentry from "@sentry/node";
 
-const app = express();
+import log from "./middleware/logMiddleware.js";
 
+const app = express();
 Sentry.init({
   dsn: "https://23c7ceb38eb5a6e3beee58368753f204@o4507350401679360.ingest.de.sentry.io/4507860097957968",
   integrations: [
@@ -31,7 +31,10 @@ Sentry.init({
   tracesSampleRate: 1.0,
 });
 
+// RequestHandler creates a separate execution context, so that all
+// transactions/spans/breadcrumbs are isolated across requests
 app.use(Sentry.Handlers.requestHandler());
+// TracingHandler creates a trace for every incoming request
 app.use(Sentry.Handlers.tracingHandler());
 
 app.use(express.json());
@@ -49,10 +52,6 @@ app.use("/login", loginRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello world!");
-});
-
-app.get("/debug-sentry", function mainHandler(req, res) {
-  throw new Error("My first Sentry error!");
 });
 
 app.use(Sentry.Handlers.errorHandler());
