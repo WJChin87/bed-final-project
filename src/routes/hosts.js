@@ -6,11 +6,13 @@ import getHostById from "../services/hosts/getHostById.js";
 import deleteHostById from "../services/hosts/deleteHostById.js";
 import updateHostById from "../services/hosts/updateHostById.js";
 import auth from "../middleware/auth.js";
+import notFoundErrorHandler from "../middleware/notFoundErrorHandler.js";
 
 const router = Router();
 
-router.get("/", async (req, res, next) => {
-  try {
+router.get(
+  "/",
+  async (req, res, next) => {
     const filters = {
       username: req.query.username,
       name: req.query.name,
@@ -18,15 +20,16 @@ router.get("/", async (req, res, next) => {
       phoneNumber: req.query.phoneNumber,
     };
 
-    const users = await getHosts(filters);
-    res.json(users);
-  } catch (error) {
-    next(error);
-  }
-});
+    const hosts = await getHosts(filters);
+    res.status(200).json(hosts);
+  },
+  notFoundErrorHandler
+);
 
-router.post("/", auth, async (req, res, next) => {
-  try {
+router.post(
+  "/",
+  auth,
+  async (req, res, next) => {
     const requiredFields = [
       "username",
       "password",
@@ -55,7 +58,10 @@ router.post("/", auth, async (req, res, next) => {
     // Check if the username already exists
     const existingHost = await getHostByUsername(username);
     if (existingHost) {
-      throw new Error("Username is already taken");
+      // If the username already exists, use the existing user and return a message
+      const message = "Username already exists. Please choose a different one.";
+      res.status(201).json({ message });
+      return;
     }
 
     const newHost = await createHost(
@@ -67,67 +73,54 @@ router.post("/", auth, async (req, res, next) => {
       profilePicture,
       aboutMe
     );
-
-    if (!newHost) {
-      throw new Error("Failed to create host. Please check the request data.");
-    }
-
     res.status(201).json({
-      message: `Host with id ${newHost.id} successfully added`,
+      message: "Host successfully created!",
       host: newHost,
     });
-  } catch (error) {
-    res.status(400).json({
-      message: error.message,
-    });
-  }
-});
+  },
+  notFoundErrorHandler
+);
 
-router.get("/:id", async (req, res, next) => {
-  console.log("req.params:", req.params);
-  try {
+router.get(
+  "/:id",
+  async (req, res, next) => {
+    console.log("req.params:", req.params);
     const { id } = req.params;
     const host = await getHostById(id);
 
-    if (!host) {
-      res.status(404).json({ message: `Host with id ${id} not found` });
-    } else {
-      res.status(200).json(host);
-    }
-  } catch (error) {
-    next(error);
-  }
-});
+    res.status(200).json(host);
+  },
+  notFoundErrorHandler
+);
 
-router.delete("/:id", auth, async (req, res, next) => {
-  try {
+router.delete(
+  "/:id",
+  auth,
+  async (req, res, next) => {
     const { id } = req.params;
     const deletedHost = await deleteHostById(id);
-    if (!deletedHost) {
-      res.status(404).json({ message: `Host with id ${id} not found` });
-    } else {
-      res.status(200).json({ message: `Host with id ${id} deleted` });
-    }
-  } catch (error) {
-    next(error);
-  }
-});
 
-router.put("/:id", auth, async (req, res) => {
-  const { id } = req.params;
-  const updatedHostData = req.body;
-  const updatedHostById = await updateHostById(id, updatedHostData);
+    res.status(200).json({
+      message: `Host with id ${deletedHost} was deleted!`,
+    });
+  },
+  notFoundErrorHandler
+);
 
-  if (updatedHostById) {
+router.put(
+  "/:id",
+  auth,
+  async (req, res) => {
+    const { id } = req.params;
+    const updatedHostData = req.body;
+    const updatedHostById = await updateHostById(id, updatedHostData);
+
     res.status(200).json({
       message: `Host with id ${id} successfully updated`,
-      updatedHostById,
+      user: updatedHostById,
     });
-  } else {
-    return res.status(404).json({
-      message: `Host with id ${id} not found`,
-    });
-  }
-});
+  },
+  notFoundErrorHandler
+);
 
 export default router;
