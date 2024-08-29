@@ -52,8 +52,8 @@ router.post(
     const existingUser = await getUserByUsername(username);
     if (existingUser) {
       // If the username already exists, use the existing user and return a message
-      const message = "User already exists, using existing user";
-      res.status(201).json({ message, user: existingUser });
+      const message = "Username already exists. Please choose a different one.";
+      res.status(201).json({ message });
       return;
     }
 
@@ -66,7 +66,10 @@ router.post(
       profilePicture
     );
 
-    res.status(201).json(newUser);
+    res.status(201).json({
+      message: "User successfully created!",
+      user: newUser,
+    });
   },
   notFoundErrorHandler
 );
@@ -91,7 +94,7 @@ router.delete(
     const deletedUser = await deleteUserById(id);
 
     res.status(200).json({
-      message: `User with id ${id} successfully deleted`,
+      message: `User with id ${deletedUser} successfully deleted`,
     });
   },
   notFoundErrorHandler
