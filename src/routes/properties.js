@@ -5,11 +5,13 @@ import getPropertyById from "../services/properties/getPropertyById.js";
 import deletePropertyById from "../services/properties/deletePropertyById.js";
 import updatePropertyById from "../services/properties/updatePropertyById.js";
 import auth from "../middleware/auth.js";
+import notFoundErrorHandler from "../middleware/notFoundErrorHandler.js";
 
 const router = Router();
 
-router.get("/", async (req, res, next) => {
-  try {
+router.get(
+  "/",
+  async (req, res, next) => {
     const filters = {
       hostId: req.query.hostId,
       name: req.query.name,
@@ -23,14 +25,15 @@ router.get("/", async (req, res, next) => {
     };
 
     const properties = await getProperties(filters);
-    res.json(properties);
-  } catch (error) {
-    next(error);
-  }
-});
+    res.status(200).json(properties);
+  },
+  notFoundErrorHandler
+);
 
-router.post("/", auth, async (req, res, next) => {
-  try {
+router.post(
+  "/",
+  auth,
+  async (req, res, next) => {
     const requiredFields = [
       "location",
       "description",
@@ -69,68 +72,56 @@ router.post("/", auth, async (req, res, next) => {
       hostId
     );
 
-    if (!newProperty) {
-      throw new Error(
-        "Failed to create property. Please check the request data."
-      );
-    }
-
     res.status(201).json({
-      message: `Property with id ${newProperty.id} successfully added`,
-      property: newProperty,
+      message: "Property successfully created!",
+      user: newProperty,
     });
-  } catch (error) {
-    res.status(400).json({
-      message: error.message,
-    });
-  }
-});
+  },
+  notFoundErrorHandler
+);
 
-router.get("/:id", async (req, res, next) => {
-  console.log("req.params:", req.params);
-  try {
+router.get(
+  "/:id",
+  async (req, res, next) => {
+    console.log("req.params:", req.params);
     const { id } = req.params;
     const property = await getPropertyById(id);
 
-    if (!property) {
-      res.status(404).json({ message: `Property with id ${id} not found` });
-    } else {
-      res.status(200).json(property);
-    }
-  } catch (error) {
-    next(error);
-  }
-});
+    res.status(200).json(property);
+  },
+  notFoundErrorHandler
+);
 
-router.delete("/:id", auth, async (req, res, next) => {
-  try {
+router.delete(
+  "/:id",
+  auth,
+  async (req, res, next) => {
     const { id } = req.params;
     const deletedProperty = await deletePropertyById(id);
-    if (!deletedProperty) {
-      res.status(404).json({ message: `Property with id ${id} not found` });
-    } else {
-      res.status(200).json({ message: `Property with id ${id} deleted` });
-    }
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.put("/:id", auth, async (req, res) => {
-  const { id } = req.params;
-  const updatedPropertyData = req.body;
-  const updatedPropertyById = await updatePropertyById(id, updatedPropertyData);
-
-  if (updatedPropertyById) {
     res.status(200).json({
-      message: `Property with id ${id} successfully updated`,
-      updatedPropertyById,
+      message: `Property with id ${deletedProperty} successfully deleted`,
     });
-  } else {
-    return res.status(404).json({
-      message: `Property with id ${id} not found`,
+  },
+  notFoundErrorHandler
+);
+
+router.put(
+  "/:id",
+  auth,
+  async (req, res) => {
+    const { id } = req.params;
+    const updatedPropertyData = req.body;
+    const updatedPropertyById = await updatePropertyById(
+      id,
+      updatedPropertyData
+    );
+
+    res.status(200).json({
+      message: `Property with id ${updatedPropertyById} successfully updated`,
+      user: updatedPropertyById,
     });
-  }
-});
+  },
+  notFoundErrorHandler
+);
 
 export default router;
