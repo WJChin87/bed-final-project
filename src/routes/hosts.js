@@ -83,46 +83,46 @@ router.post(
   notFoundErrorHandler
 );
 
-router.get(
-  "/:id",
-  async (req, res, next) => {
-    console.log("req.params:", req.params);
-    const { id } = req.params;
-    const host = await getHostById(id);
-
+router.get("/:id", async (req, res, next) => {
+  console.log("req.params:", req.params);
+  const { id } = req.params;
+  const host = await getHostById(id);
+  if (host) {
     res.status(200).json(host);
-  },
-  notFoundErrorHandler
-);
+  } else {
+    res.status(404).json({ message: `Host not found` });
+  }
+  notFoundErrorHandler;
+});
 
-router.delete(
-  "/:id",
-  auth,
-  async (req, res, next) => {
-    const { id } = req.params;
-    const deletedHost = await deleteHostById(id);
+router.delete("/:id", auth, async (req, res, next) => {
+  const { id } = req.params;
+  const deletedHost = await deleteHostById(id);
+  if (deletedHost) {
+    res.status(200).json({ message: `Host with id ${id} deleted` });
+  } else {
+    res.status(404).json({ message: `Host with id ${id} not found` });
+  }
+  notFoundErrorHandler;
+});
 
-    res.status(200).json({
-      message: `Host with id ${deletedHost} was deleted!`,
-    });
-  },
-  notFoundErrorHandler
-);
+router.put("/:id", auth, async (req, res) => {
+  const { id } = req.params;
+  const updatedHostData = req.body;
+  const updatedHostById = await updateHostById(id, updatedHostData);
 
-router.put(
-  "/:id",
-  auth,
-  async (req, res) => {
-    const { id } = req.params;
-    const updatedHostData = req.body;
-    const updatedHostById = await updateHostById(id, updatedHostData);
-
+  if (updatedHostById) {
     res.status(200).json({
       message: `Host with id ${id} successfully updated`,
-      user: updatedHostById,
+      updatedHostById,
     });
-  },
-  notFoundErrorHandler
-);
+  } else {
+    return res.status(404).json({
+      message: `Host with id ${id} not found`,
+    });
+  }
+
+  notFoundErrorHandler;
+});
 
 export default router;

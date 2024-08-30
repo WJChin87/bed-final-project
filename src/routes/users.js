@@ -76,46 +76,47 @@ router.post(
   notFoundErrorHandler
 );
 
-router.get(
-  "/:id",
-  async (req, res, next) => {
-    console.log("req.params:", req.params);
-    const { id } = req.params;
-    const user = await getUserById(id);
-
+router.get("/:id", async (req, res, next) => {
+  const { id } = req.params;
+  const user = await getUserById(id);
+  if (user) {
+    console.log(`GET /users/${id} - 200`);
     res.status(200).json(user);
-  },
-  notFoundErrorHandler
-);
+  } else {
+    console.log(`GET /users/${id} - 404`);
+    res.status(404).json({ message: `User not found` });
+  }
+  notFoundErrorHandler;
+});
 
-router.delete(
-  "/:id",
-  auth,
-  async (req, res, next) => {
-    const { id } = req.params;
-    const deletedUser = await deleteUserById(id);
+router.delete("/:id", auth, async (req, res, next) => {
+  const { id } = req.params;
+  const deletedUser = await deleteUserById(id);
+  if (deletedUser) {
+    res.status(200).json({ message: `User with id ${id} deleted` });
+  } else {
+    res.status(404).json({ message: `User with id ${id} not found` });
+  }
+  notFoundErrorHandler;
+});
 
+router.put("/:id", auth, async (req, res) => {
+  const { id } = req.params;
+  const updatedUserData = req.body;
+  const updatedUserById = await updateUserById(id, updatedUserData);
+
+  if (updatedUserById) {
     res.status(200).json({
-      message: `User with id ${deletedUser} successfully deleted`,
+      message: `User with id ${id} successfully updated`,
+      updatedUserById,
     });
-  },
-  notFoundErrorHandler
-);
-
-router.put(
-  "/:id",
-  auth,
-  async (req, res) => {
-    const { id } = req.params;
-    const updatedUserData = req.body;
-    const updatedUserById = await updateUserById(id, updatedUserData);
-
-    res.status(200).json({
-      message: `User with id ${updatedUserById} successfully updated`,
-      user: updatedUserById,
+  } else {
+    return res.status(404).json({
+      message: `User with id ${id} not found`,
     });
-  },
-  notFoundErrorHandler
-);
+  }
+
+  notFoundErrorHandler;
+});
 
 export default router;

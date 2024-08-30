@@ -43,46 +43,48 @@ router.post(
   notFoundErrorHandler
 );
 
-router.get(
-  "/:id",
-  async (req, res, next) => {
-    console.log("req.params:", req.params);
-    const { id } = req.params;
-    const review = await getReviewById(id);
+router.get("/:id", async (req, res, next) => {
+  console.log("req.params:", req.params);
+  const { id } = req.params;
+  const review = await getReviewById(id);
 
+  if (review) {
     res.status(200).json(review);
-  },
-  notFoundErrorHandler
-);
+  } else {
+    res.status(404).json({ message: `Review not found` });
+  }
+  notFoundErrorHandler;
+});
 
-router.delete(
-  "/:id",
-  auth,
-  async (req, res, next) => {
-    const { id } = req.params;
-    const deletedReview = await deleteReviewById(id);
+router.delete("/:id", auth, async (req, res, next) => {
+  const { id } = req.params;
+  const deletedReview = await deleteReviewById(id);
 
+  if (deletedReview) {
+    res.status(200).json({ message: `Review with id ${id} deleted` });
+  } else {
+    res.status(404).json({ message: `Review with id ${id} not found` });
+  }
+  notFoundErrorHandler;
+});
+
+router.put("/:id", auth, async (req, res) => {
+  const { id } = req.params;
+  const updatedReviewData = req.body;
+  const updatedReviewById = await updateReviewById(id, updatedReviewData);
+
+  if (updatedReviewById) {
     res.status(200).json({
-      message: `Review with id ${deletedReview} successfully deleted`,
+      message: `Review with id ${id} successfully updated`,
+      updatedReviewById,
     });
-  },
-  notFoundErrorHandler
-);
-
-router.put(
-  "/:id",
-  auth,
-  async (req, res) => {
-    const { id } = req.params;
-    const updatedReviewData = req.body;
-    const updatedReviewById = await updateReviewById(id, updatedReviewData);
-
-    res.status(200).json({
-      message: `Review with id ${updatedReviewById} successfully updated`,
-      review: updatedReviewById,
+  } else {
+    return res.status(404).json({
+      message: `Review with id ${id} not found`,
     });
-  },
-  notFoundErrorHandler
-);
+  }
+
+  notFoundErrorHandler;
+});
 
 export default router;

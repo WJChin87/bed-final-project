@@ -43,46 +43,48 @@ router.post(
   notFoundErrorHandler
 );
 
-router.get(
-  "/:id",
-  async (req, res, next) => {
-    console.log("req.params:", req.params);
-    const { id } = req.params;
-    const amenity = await getAmenityById(id);
+router.get("/:id", async (req, res, next) => {
+  console.log("req.params:", req.params);
+  const { id } = req.params;
+  const amenity = await getAmenityById(id);
 
+  if (amenity) {
     res.status(200).json(amenity);
-  },
-  notFoundErrorHandler
-);
+  } else {
+    res.status(404).json({ message: `Amenity not found` });
+  }
+  notFoundErrorHandler;
+});
 
-router.delete(
-  "/:id",
-  auth,
-  async (req, res, next) => {
-    const { id } = req.params;
-    const deletedAmenity = await deleteAmenityById(id);
+router.delete("/:id", auth, async (req, res, next) => {
+  const { id } = req.params;
+  const deletedAmenity = await deleteAmenityById(id);
 
+  if (deletedAmenity) {
+    res.status(200).json({ message: `Amenity with id ${id} deleted` });
+  } else {
+    res.status(404).json({ message: `Amenity with id ${id} not found` });
+  }
+  notFoundErrorHandler;
+});
+
+router.put("/:id", auth, async (req, res) => {
+  const { id } = req.params;
+  const updatedAmenityData = req.body;
+  const updatedAmenityById = await updateAmenityById(id, updatedAmenityData);
+
+  if (updatedAmenityById) {
     res.status(200).json({
-      message: `User with id ${deletedAmenity} successfully deleted`,
+      message: `Amenity with id ${id} successfully updated`,
+      updatedAmenityById,
     });
-  },
-  notFoundErrorHandler
-);
-
-router.put(
-  "/:id",
-  auth,
-  async (req, res) => {
-    const { id } = req.params;
-    const updatedAmenityData = req.body;
-    const updatedAmenityById = await updateAmenityById(id, updatedAmenityData);
-
-    res.status(200).json({
-      message: `Amenity with id ${updatedAmenityById} successfully updated`,
-      user: updatedAmenityById,
+  } else {
+    return res.status(404).json({
+      message: `Amenity with id ${id} not found`,
     });
-  },
-  notFoundErrorHandler
-);
+  }
+
+  notFoundErrorHandler;
+});
 
 export default router;

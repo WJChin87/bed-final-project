@@ -82,48 +82,48 @@ router.post(
   notFoundErrorHandler
 );
 
-router.get(
-  "/:id",
-  async (req, res, next) => {
-    console.log("req.params:", req.params);
-    const { id } = req.params;
-    const property = await getPropertyById(id);
+router.get("/:id", async (req, res, next) => {
+  console.log("req.params:", req.params);
+  const { id } = req.params;
+  const property = await getPropertyById(id);
 
+  if (property) {
     res.status(200).json(property);
-  },
-  notFoundErrorHandler
-);
+  } else {
+    res.status(404).json({ message: `Property not found` });
+  }
+  notFoundErrorHandler;
+});
 
-router.delete(
-  "/:id",
-  auth,
-  async (req, res, next) => {
-    const { id } = req.params;
-    const deletedProperty = await deletePropertyById(id);
+router.delete("/:id", auth, async (req, res, next) => {
+  const { id } = req.params;
+  const deletedProperty = await deletePropertyById(id);
+
+  if (deletedProperty) {
+    res.status(200).json({ message: `Property with id ${id} deleted` });
+  } else {
+    res.status(404).json({ message: `Property with id ${id} not found` });
+  }
+  notFoundErrorHandler;
+});
+
+router.put("/:id", auth, async (req, res) => {
+  const { id } = req.params;
+  const updatedPropertyData = req.body;
+  const updatedPropertyById = await updatePropertyById(id, updatedPropertyData);
+
+  if (updatedPropertyById) {
     res.status(200).json({
-      message: `Property with id ${deletedProperty} successfully deleted`,
+      message: `Property with id ${id} successfully updated`,
+      updatedPropertyById,
     });
-  },
-  notFoundErrorHandler
-);
-
-router.put(
-  "/:id",
-  auth,
-  async (req, res) => {
-    const { id } = req.params;
-    const updatedPropertyData = req.body;
-    const updatedPropertyById = await updatePropertyById(
-      id,
-      updatedPropertyData
-    );
-
-    res.status(200).json({
-      message: `Property with id ${updatedPropertyById} successfully updated`,
-      user: updatedPropertyById,
+  } else {
+    return res.status(404).json({
+      message: `Property with id ${id} not found`,
     });
-  },
-  notFoundErrorHandler
-);
+  }
+
+  notFoundErrorHandler;
+});
 
 export default router;
